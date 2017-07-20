@@ -48,7 +48,7 @@ import { LayoutBase } from "tns-core-modules/ui/layouts/layout-base";
 import {
   GridItemEventData,
   GridView,
-} from "./grid-view";
+} from "../grid-view";
 
 import { isListLikeIterable } from "nativescript-angular/collection-facade";
 import {
@@ -263,4 +263,28 @@ export function getGridItemRoot(viewRef: ComponentView, rootLocator: RootLocator
 
 if (!isKnownView("GridView")) {
   registerElement("GridView", () => GridView);
+}
+
+// Create the angular module
+import {
+  NO_ERRORS_SCHEMA,
+  NgModule,
+} from "@angular/core";
+import { NativeScriptModule } from "nativescript-angular/nativescript.module";
+
+@NgModule({
+  imports: [
+    NativeScriptModule,
+  ],
+  declarations: [
+    GridViewComponent,
+  ],
+  exports: [
+    GridViewComponent,
+  ],
+  schemas: [
+    NO_ERRORS_SCHEMA,
+  ],
+})
+export class GridViewModule {
 }
