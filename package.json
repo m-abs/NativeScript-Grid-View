@@ -28,9 +28,9 @@
     "tangra"
   ],
   "author": "Peter Staev <peter@tangrasoft.com>",
-	"contributors": [
-		"Morten Sjøgren (https://github.com/m-abs)"
-	],
+  "contributors": [
+    "Morten Sjøgren (https://github.com/m-abs)"
+  ],
   "license": "Apache-2.0",
   "peerDependencies": {
     "tns-core-modules": "^3.0.0"
