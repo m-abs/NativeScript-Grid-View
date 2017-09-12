@@ -20,7 +20,9 @@ import { makeParser, makeValidator } from "ui/content-view";
 import { CoercibleProperty, Length, PercentLength, Property, Template, View } from "ui/core/view";
 import { addWeakEventListener, removeWeakEventListener } from "ui/core/weak-event-listener";
 import { ItemsSource } from "ui/list-view";
-import { GridView as GridViewDefinition, Orientation } from ".";
+import { GridView as GridViewDefinition, Orientation, GridViewScrollEventData } from ".";
+
+export { GridViewScrollEventData };
 
 const autoEffectiveRowHeight = 100;
 const autoEffectiveColWidth = 100;
@@ -36,6 +38,7 @@ export abstract class GridViewBase extends View implements GridViewDefinition {
     public static itemLoadingEvent = "itemLoading";
     public static itemTapEvent = "itemTap";
     public static loadMoreItemsEvent = "loadMoreItems";
+    public static scrollEvent = "scroll";
 
     public orientation: Orientation;
     public itemTemplate: string | Template;

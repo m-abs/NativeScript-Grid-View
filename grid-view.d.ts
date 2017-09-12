@@ -17,6 +17,7 @@ limitations under the License.
 import { PercentLength, Template, View } from "ui/core/view";
 import { ItemsSource } from "ui/list-view";
 import { EventData } from "data/observable";
+import { ScrollEventData } from 'ui/scroll-view';
 
 export type Orientation = "horizontal" | "vertical"
 
@@ -24,6 +25,7 @@ export class GridView extends View {
     public static itemLoadingEvent: string;
     public static itemTapEvent: string;
     public static loadMoreItemsEvent: string;
+    public static scrollEvent: string;
 
     public items: any[] | ItemsSource;
     public itemTemplate: string | Template;
@@ -42,4 +44,8 @@ export interface GridItemEventData extends EventData {
     object: GridView;
     index: number;
     view: View;
+}
+
+export interface GridViewScrollEventData extends ScrollEventData {
+    object: GridView;
 }

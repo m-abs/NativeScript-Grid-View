@@ -20,6 +20,7 @@ import * as utils from "utils/utils";
 
 import {
     GridViewBase,
+    GridViewScrollEventData,
     orientationProperty,
     paddingBottomProperty,
     paddingLeftProperty,
@@ -34,11 +35,21 @@ export * from "./grid-view-common";
 const CELLIDENTIFIER = "gridcell";
 
 export class GridView extends GridViewBase {
+    nativeView: UICollectionView;
+
     private _layout: UICollectionViewFlowLayout;
     private _dataSource: GridViewDataSource;
     private _delegate: UICollectionViewDelegateImpl;
     private _preparingCell: boolean = false;
     private _map: Map<GridViewCell, View>;
+
+    get horizontalOffset(): number {
+        return this.nativeView.contentOffset.x;
+    }
+
+    get verticalOffset(): number {
+        return this.nativeView.contentOffset.y;
+    }
 
     constructor() {
         super();
@@ -331,5 +342,19 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
         cell.highlighted = false;
 
         return indexPath;
+    }
+
+    public scrollViewDidScroll(collectionView: UICollectionView) {
+        const owner = this._owner.get();
+        if (!owner) {
+            return;
+        }
+
+        owner.notify(<GridViewScrollEventData>{
+            object: owner,
+            eventName: GridViewBase.scrollEvent,
+            scrollX: owner.horizontalOffset,
+            scrollY: owner.verticalOffset
+        });
     }
 }
