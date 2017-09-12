@@ -20,7 +20,7 @@ import { makeParser, makeValidator } from "ui/content-view";
 import { CoercibleProperty, Length, PercentLength, Property, Template, View } from "ui/core/view";
 import { addWeakEventListener, removeWeakEventListener } from "ui/core/weak-event-listener";
 import { ItemsSource } from "ui/list-view";
-import { GridView as GridViewDefinition, Orientation, GridViewScrollEventData } from ".";
+import { GridView as GridViewDefinition, GridViewScrollEventData, Orientation } from ".";
 
 export { GridViewScrollEventData };
 

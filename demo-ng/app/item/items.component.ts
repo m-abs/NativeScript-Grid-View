@@ -18,4 +18,10 @@ export class ItemsComponent implements OnInit {
     ngOnInit(): void {
         this.items = this.itemService.getItems();
     }
+
+    onScroll(args: any) {
+        for (const key of Object.keys(args)) {
+            console.log(`${key} = ${args[key]}`);
+        }
+    }
 }

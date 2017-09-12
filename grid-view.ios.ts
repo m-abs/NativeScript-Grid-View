@@ -35,7 +35,7 @@ export * from "./grid-view-common";
 const CELLIDENTIFIER = "gridcell";
 
 export class GridView extends GridViewBase {
-    nativeView: UICollectionView;
+    public nativeView: UICollectionView;
 
     private _layout: UICollectionViewFlowLayout;
     private _dataSource: GridViewDataSource;
@@ -350,11 +350,11 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
             return;
         }
 
-        owner.notify(<GridViewScrollEventData>{
+        owner.notify({
             object: owner,
             eventName: GridViewBase.scrollEvent,
             scrollX: owner.horizontalOffset,
             scrollY: owner.verticalOffset
-        });
+        } as GridViewScrollEventData);
     }
 }
