@@ -19,6 +19,7 @@ import { Length, View } from "ui/core/view";
 import {
     GridViewBase,
     colWidthProperty,
+    orientationProperty,
     paddingBottomProperty,
     paddingLeftProperty,   
     paddingRightProperty,
@@ -26,7 +27,7 @@ import {
     rowHeightProperty,
 } from "./grid-view-common";
 
-import { GridItemEventData } from ".";
+import { GridItemEventData, Orientation } from ".";
 
 export * from "./grid-view-common";
 
@@ -119,6 +120,23 @@ export class GridView extends GridViewBase {
         this._setPadding({ left: this.effectivePaddingLeft });
     }
 
+    public [orientationProperty.getDefault](): Orientation {
+        const layoutManager = this.nativeView.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
+        if (layoutManager.getOrientation() === android.support.v7.widget.LinearLayoutManager.HORIZONTAL) {
+            return "horizontal";
+        }
+
+        return "vertical";
+    }
+    public [orientationProperty.setNative](value: Orientation) {
+        const layoutManager = this.nativeView.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
+        if (value === "horizontal") {
+            layoutManager.setOrientation(android.support.v7.widget.LinearLayoutManager.HORIZONTAL);
+        } else {
+            layoutManager.setOrientation(android.support.v7.widget.LinearLayoutManager.VERTICAL);
+        }
+    }
+
     public eachChildView(callback: (child: View) => boolean): void {
         this._realizedItems.forEach((view, key) => {
             callback(view);
@@ -142,11 +160,6 @@ export class GridView extends GridViewBase {
           spanCount = Math.max(Math.floor(this._innerHeight / this._effectiveRowHeight), 1) || 1;
         } else {
           spanCount = Math.max(Math.floor(this._innerWidth / this._effectiveColWidth), 1) || 1;
-        }
-
-        const newOrientation = this._getLayoutManagarOrientation();
-        if (layoutManager.getOrientation() !== newOrientation) {
-            layoutManager.setOrientation(newOrientation);
         }
 
         layoutManager.setSpanCount(spanCount);
@@ -199,7 +212,7 @@ class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnSc
         }
 
         const lastVisibleItemPos = (view.getLayoutManager() as android.support.v7.widget.GridLayoutManager).findLastCompletelyVisibleItemPosition();
-        const itemCount = owner.items.length;
+        const itemCount = owner.items.length - 1;
         if (lastVisibleItemPos === itemCount) {
             owner.notify({
                 eventName: GridViewBase.loadMoreItemsEvent,
