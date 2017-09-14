@@ -40,6 +40,8 @@ export class GridView extends GridViewBase {
     private _preparingCell: boolean = false;
     private _map: Map<GridViewCell, View>;
 
+    public nativeView: UICollectionView;
+
     constructor() {
         super();
 
@@ -136,6 +138,11 @@ export class GridView extends GridViewBase {
         layout.itemSize = CGSizeMake(utils.layout.toDeviceIndependentPixels(this._effectiveColWidth), utils.layout.toDeviceIndependentPixels(this._effectiveRowHeight));
 
     }
+
+    public scrollToIndec(index: number) {
+        this.nativeView.scrollToItemAtIndexPathAtScrollPositionAnimated(NSIndexPath.indexPathForItemInSection(index, 0), 1, false);
+    }
+
     public refresh() {
         // clear bindingContext when it is not observable because otherwise bindings to items won't reevaluate
         this.eachChildView((view) => {

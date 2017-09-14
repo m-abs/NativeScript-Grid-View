@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ***************************************************************************** */
 
-import { Length, View } from "ui/core/view";
+import { Length, View, layout } from "ui/core/view";
 import * as utils from "utils/utils";
 
 import {
@@ -33,7 +33,7 @@ import { GridItemEventData, Orientation } from ".";
 export * from "./grid-view-common";
 
 export class GridView extends GridViewBase {
-    public nativeView: android.support.v7.widget.RecyclerView;
+    public nativeView: GridViewRecyclerView;
     public _realizedItems = new Map<android.view.View, View>();
 
     public createNativeView() {
@@ -178,6 +178,18 @@ export class GridView extends GridViewBase {
 
         return this._realizedItems.get(convertView);
     }
+
+    public scrollToIndex(index: number) {
+        this.nativeView.scrollToPosition(index);
+    }
+
+    public scrollTo(x: number, y: number) {
+        this.nativeView.scrollTo(x, y);
+    }
+
+    public scrollBy(x: number, y: number) {
+        this.nativeView.scrollBy(x, y);
+    }
     
     private _setPadding(newPadding: { top?: number, right?: number, bottom?: number, left?: number }) {
         const nativeView: android.view.View = this.nativeView as any;
@@ -203,6 +215,10 @@ export class GridView extends GridViewBase {
 }
 
 class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnScrollListener {
+
+    private _lastScrollX: number = -1;
+    private _lastScrollY: number = -1;
+
     constructor(private owner: WeakRef<GridView>) {
         super();
 
@@ -214,14 +230,34 @@ class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnSc
         if (!owner) {
             return;
         }
+        const layoutManager = view.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
 
-        const lastVisibleItemPos = (view.getLayoutManager() as android.support.v7.widget.GridLayoutManager).findLastCompletelyVisibleItemPosition();
+        const scrollX = view.computeHorizontalScrollOffset();
+        const scrollY = view.computeVerticalScrollOffset();
+
+        const firstVisibleItemPos = layoutManager.findFirstCompletelyVisibleItemPosition();
+        const lastVisibleItemPos = layoutManager.findLastCompletelyVisibleItemPosition();
         const itemCount = owner.items.length - 1;
         if (lastVisibleItemPos === itemCount) {
             owner.notify({
                 eventName: GridViewBase.loadMoreItemsEvent,
                 object: owner
             });
+        }
+
+        if (scrollX !== this._lastScrollX || scrollY !== this._lastScrollY) {
+          owner.notify({
+            object: owner,
+            eventName: "scroll",
+            scrollX: scrollX / layout.getDisplayDensity(),
+            scrollY: scrollY / layout.getDisplayDensity(),
+            firstVisibleItemPos,
+            lastVisibleItemPos,
+            itemCount,
+          });
+
+          this._lastScrollX = scrollX;
+          this._lastScrollY = scrollY;
         }
     }
 
@@ -321,4 +357,22 @@ class GridViewRecyclerView extends android.support.v7.widget.RecyclerView {
         super.onLayout(changed, l, t, r, b);
     }
     
+    public scrollTo(x: number, y: number) {
+        const oldX = this.computeHorizontalScrollOffset();
+        const oldY = this.computeVerticalScrollOffset();
+
+        const deltaX = x - oldX;
+        const deltaY = y - oldY;
+
+        console.dir({
+          deltaX,
+          deltaY,
+          oldX,
+          oldY,
+          x,
+          y,
+        });
+
+        this.scrollBy(deltaX, deltaY);
+    }
 }
