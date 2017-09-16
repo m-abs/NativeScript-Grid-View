@@ -21,7 +21,7 @@ import {
     colWidthProperty,
     orientationProperty,
     paddingBottomProperty,
-    paddingLeftProperty,   
+    paddingLeftProperty,
     paddingRightProperty,
     paddingTopProperty,
     rowHeightProperty,
@@ -33,7 +33,11 @@ export * from "./grid-view-common";
 
 export class GridView extends GridViewBase {
     public nativeView: GridViewRecyclerView;
-    public _realizedItems = new Map<android.view.View, View>();
+    public readonly _realizedItems = new Map<android.view.View, View>();
+
+    private get layoutManager() {
+        return this.nativeView.layoutManager;
+    }
 
     public createNativeView() {
         const recyclerView = new GridViewRecyclerView(this._context, new WeakRef(this));
@@ -43,10 +47,8 @@ export class GridView extends GridViewBase {
         recyclerView.setAdapter(adapter);
 
         const orientation = this._getLayoutManagarOrientation();
-
-        const layoutManager = new android.support.v7.widget.LinearLayoutManager(this._context, orientation, false);
+        const layoutManager = new android.support.v7.widget.GridLayoutManager(this._context, 1, orientation, false);
         recyclerView.setLayoutManager(layoutManager);
-        layoutManager.setOrientation(orientation);
 
         const scrollListener = new GridViewScrollListener(new WeakRef(this));
         recyclerView.addOnScrollListener(scrollListener);
@@ -84,11 +86,11 @@ export class GridView extends GridViewBase {
         super.disposeNativeView();
     }
 
-    get android(): android.support.v7.widget.RecyclerView {
+    public get android(): GridViewRecyclerView {
         return this.nativeView;
     }
 
-    get _childrenCount(): number {
+    public get _childrenCount(): number {
         return this._realizedItems.size;
     }
 
@@ -121,15 +123,15 @@ export class GridView extends GridViewBase {
     }
 
     public [orientationProperty.getDefault](): Orientation {
-        const layoutManager = this.nativeView.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
-        if (layoutManager.getOrientation() === android.support.v7.widget.LinearLayoutManager.HORIZONTAL) {
+        const layoutManager = this.layoutManager;
+        if (layoutManager.getOrientation() === android.support.v7.widget.GridLayoutManager.HORIZONTAL) {
             return "horizontal";
         }
 
         return "vertical";
     }
     public [orientationProperty.setNative](value: Orientation) {
-        const layoutManager = this.nativeView.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
+        const layoutManager = this.layoutManager;
         if (value === "horizontal") {
             layoutManager.setOrientation(android.support.v7.widget.LinearLayoutManager.HORIZONTAL);
         } else {
@@ -153,17 +155,6 @@ export class GridView extends GridViewBase {
             return;
         }
 
-        const layoutManager = this.nativeView.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
-        let spanCount: number;
-
-        if (this.orientation === "horizontal") {
-          spanCount = Math.max(Math.floor(this._innerHeight / this._effectiveRowHeight), 1) || 1;
-        } else {
-          spanCount = Math.max(Math.floor(this._innerWidth / this._effectiveColWidth), 1) || 1;
-        }
-
-        layoutManager.setSpanCount(spanCount);
-
         this.nativeView.getAdapter().notifyDataSetChanged();
     }
 
@@ -186,12 +177,12 @@ export class GridView extends GridViewBase {
     public scrollBy(x: number, y: number) {
         this.nativeView.scrollBy(x, y);
     }
-    
+
     private _setPadding(newPadding: { top?: number, right?: number, bottom?: number, left?: number }) {
         const nativeView: android.view.View = this.nativeView as any;
         const padding = {
             top: nativeView.getPaddingTop(),
-            right: nativeView.getPaddingRight(), 
+            right: nativeView.getPaddingRight(),
             bottom: nativeView.getPaddingBottom(),
             left: nativeView.getPaddingLeft()
         };
@@ -201,9 +192,9 @@ export class GridView extends GridViewBase {
     }
 
     private _getLayoutManagarOrientation() {
-        let orientation = android.support.v7.widget.LinearLayoutManager.VERTICAL;
+        let orientation = android.support.v7.widget.GridLayoutManager.VERTICAL;
         if (this.orientation === "horizontal") {
-            orientation = android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+            orientation = android.support.v7.widget.GridLayoutManager.HORIZONTAL;
         }
 
         return orientation;
@@ -211,7 +202,6 @@ export class GridView extends GridViewBase {
 }
 
 class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnScrollListener {
-
     private _lastScrollX: number = -1;
     private _lastScrollY: number = -1;
 
@@ -221,12 +211,12 @@ class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnSc
         return global.__native(this);
     }
 
-    public onScrolled(view: android.support.v7.widget.RecyclerView, dx: number, dy: number) {
+    public onScrolled(view: GridViewRecyclerView, dx: number, dy: number) {
         const owner: GridView = this.owner.get();
         if (!owner) {
             return;
         }
-        const layoutManager = view.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
+        const layoutManager = view.getLayoutManager();
 
         const scrollX = view.computeHorizontalScrollOffset();
         const scrollY = view.computeVerticalScrollOffset();
@@ -242,29 +232,29 @@ class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnSc
         }
 
         if (scrollX !== this._lastScrollX || scrollY !== this._lastScrollY) {
-          owner.notify({
-            object: owner,
-            eventName: "scroll",
-            scrollX: scrollX / layout.getDisplayDensity(),
-            scrollY: scrollY / layout.getDisplayDensity(),
-            firstVisibleItemPos,
-            lastVisibleItemPos,
-            itemCount,
-          });
+            owner.notify({
+                object: owner,
+                eventName: "scroll",
+                scrollX: scrollX / layout.getDisplayDensity(),
+                scrollY: scrollY / layout.getDisplayDensity(),
+                firstVisibleItemPos,
+                lastVisibleItemPos,
+                itemCount,
+            });
 
-          this._lastScrollX = scrollX;
-          this._lastScrollY = scrollY;
+            this._lastScrollX = scrollX;
+            this._lastScrollY = scrollY;
         }
     }
 
-    public onScrollStateChanged(view: android.support.v7.widget.RecyclerView, newState: number) {
+    public onScrollStateChanged(view: GridViewRecyclerView, newState: number) {
         // Not Needed
     }
 }
 
 @Interfaces([android.view.View.OnClickListener])
 class GridViewCellHolder extends android.support.v7.widget.RecyclerView.ViewHolder implements android.view.View.OnClickListener {
-    constructor(public owner: WeakRef<View>, private gridView: WeakRef<GridView>) {       
+    constructor(public owner: WeakRef<View>, private gridView: WeakRef<GridView>) {
         super(owner.get().android);
 
         const nativeThis = global.__native(this);
@@ -286,15 +276,15 @@ class GridViewCellHolder extends android.support.v7.widget.RecyclerView.ViewHold
             object: gridView,
             index: this.getAdapterPosition(),
             view: this.view
-        });            
+        });
     }
-    
+
 }
 
 class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
     constructor(public owner: WeakRef<GridView>) {
         super();
-        
+
         return global.__native(this);
     }
 
@@ -307,7 +297,7 @@ class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
         return long(i);
     }
 
-    public onCreateViewHolder(parent: android.view.ViewGroup, viewType: number): android.support.v7.widget.RecyclerView.ViewHolder{
+    public onCreateViewHolder(parent: android.view.ViewGroup, viewType: number): android.support.v7.widget.RecyclerView.ViewHolder {
         const owner = this.owner.get();
         const view = owner._getItemTemplateContent();
 
@@ -327,17 +317,17 @@ class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
             index,
             view: vh.view
         });
-        
+
         owner._prepareItem(vh.view, index);
-    }    
+    }
 }
 
 class GridViewRecyclerView extends android.support.v7.widget.RecyclerView {
     public adapter: GridViewAdapter;
-    public layoutManager: android.support.v7.widget.LinearLayoutManager;
+    public layoutManager: android.support.v7.widget.GridLayoutManager;
     public scrollListener: GridViewScrollListener;
 
-    constructor(context: android.content.Context, public  owner: WeakRef<GridView>) {
+    constructor(context: android.content.Context, public owner: WeakRef<GridView>) {
         super(context);
 
         return global.__native(this);
@@ -347,16 +337,21 @@ class GridViewRecyclerView extends android.support.v7.widget.RecyclerView {
         if (changed) {
             const owner = this.owner.get();
             owner.onLayout(l, t, r, b);
-        }    
+        }
+
         super.onLayout(changed, l, t, r, b);
     }
-    
+
     public setAdapter(adapter: GridViewAdapter) {
         super.setAdapter(adapter);
         this.adapter = adapter;
     }
 
-    public setLayoutManager(layoutManager: android.support.v7.widget.LinearLayoutManager) {
+    public getLayoutManager(): android.support.v7.widget.GridLayoutManager {
+        return super.getLayoutManager() as android.support.v7.widget.GridLayoutManager;
+    }
+
+    public setLayoutManager(layoutManager: android.support.v7.widget.GridLayoutManager) {
         super.setLayoutManager(layoutManager);
         this.layoutManager = layoutManager;
     }
@@ -371,21 +366,15 @@ class GridViewRecyclerView extends android.support.v7.widget.RecyclerView {
         this.scrollListener = null;
     }
 
+    /**
+     * The scrollTo(x, y)-function on android.support.v7.widget.RecyclerView doesn't work, this implements it by using scrollBy(x, y);
+     */
     public scrollTo(x: number, y: number) {
         const oldX = this.computeHorizontalScrollOffset();
         const oldY = this.computeVerticalScrollOffset();
 
         const deltaX = x - oldX;
         const deltaY = y - oldY;
-
-        console.dir({
-          deltaX,
-          deltaY,
-          oldX,
-          oldY,
-          x,
-          y,
-        });
 
         this.scrollBy(deltaX, deltaY);
     }

@@ -39,7 +39,7 @@ export class GridView extends View {
     public scrollToIndex(index: number): void;
     public scrollTo(x: number, y: number): void;
     public scrollBy(x: number, y: number): void;
-    public refresh();
+    public refresh(): void;
 }
 
 export interface GridItemEventData extends EventData {

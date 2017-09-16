@@ -59,12 +59,12 @@ export abstract class GridViewBase extends View implements GridViewDefinition {
         super.onLayout(left, top, right, bottom);
 
         this._innerWidth = right - left - this.effectivePaddingLeft - this.effectivePaddingRight;
-        this._effectiveColWidth = PercentLength.toDevicePixels(this.colWidth, autoEffectiveColWidth, this._innerWidth); // We cannot use 0 for auto as it throws for android. 
+        this._effectiveColWidth = PercentLength.toDevicePixels(this.colWidth, autoEffectiveColWidth, this._innerWidth); // We cannot use 0 for auto as it throws for android.
 
         this._innerHeight = bottom - top - this.effectivePaddingTop - this.effectivePaddingBottom;
         this._effectiveRowHeight = PercentLength.toDevicePixels(this.rowHeight, autoEffectiveRowHeight, this._innerHeight);
     }
-    
+
     public _getItemTemplateContent(): View {
         let view;
 

@@ -84,11 +84,11 @@ export class GridView extends GridViewBase {
         super.onUnloaded();
     }
 
-    get ios(): UICollectionView {
+    public get ios(): UICollectionView {
         return this.nativeView;
     }
 
-    get _childrenCount(): number {
+    public get _childrenCount(): number {
         return this._map.size;
     }
 
@@ -148,7 +148,7 @@ export class GridView extends GridViewBase {
 
     }
 
-    public scrollToIndec(index: number) {
+    public scrollToIndex(index: number) {
         this.nativeView.scrollToItemAtIndexPathAtScrollPositionAnimated(NSIndexPath.indexPathForItemInSection(index, 0), 1, false);
     }
 
@@ -161,7 +161,7 @@ export class GridView extends GridViewBase {
 
             return true;
         });
-        
+
         this.ios.reloadData();
     }
 
@@ -182,7 +182,7 @@ export class GridView extends GridViewBase {
 
     public _setNativeClipToBounds() {
         this.nativeView.clipsToBounds = true;
-    }    
+    }
 
     public _prepareCell(cell: GridViewCell, indexPath: NSIndexPath) {
         try {
@@ -240,11 +240,11 @@ export class GridView extends GridViewBase {
         view.parent._removeView(view);
         this._map.delete(cell);
     }
-    
+
     private _setPadding(newPadding: { top?: number, right?: number, bottom?: number, left?: number }) {
         const padding = {
             top: this._layout.sectionInset.top,
-            right: this._layout.sectionInset.right, 
+            right: this._layout.sectionInset.right,
             bottom: this._layout.sectionInset.bottom,
             left: this._layout.sectionInset.left
         };
@@ -274,25 +274,25 @@ class GridViewCell extends UICollectionViewCell {
 class GridViewDataSource extends NSObject implements UICollectionViewDataSource {
     public static initWithOwner(owner: WeakRef<GridView>): GridViewDataSource {
         const dataSource = GridViewDataSource.new() as GridViewDataSource;
-        dataSource._owner = owner;
+        dataSource.owner = owner;
         return dataSource;
     }
 
-    private _owner: WeakRef<GridView>;
+    private owner: WeakRef<GridView>;
 
     public numberOfSectionsInCollectionView(collectionView: UICollectionView) {
         return 1;
     }
 
     public collectionViewNumberOfItemsInSection(collectionView: UICollectionView, section: number) {
-        const owner = this._owner.get();
+        const owner = this.owner.get();
         return owner.items ? owner.items.length : 0;
     }
 
     public collectionViewCellForItemAtIndexPath(collectionView: UICollectionView, indexPath: NSIndexPath): UICollectionViewCell {
-        const owner = this._owner.get();
+        const owner = this.owner.get();
         const cell: any = collectionView.dequeueReusableCellWithReuseIdentifierForIndexPath(CELLIDENTIFIER, indexPath) || GridViewCell.new();
-        
+
         owner._prepareCell(cell, indexPath);
 
         const cellView: View = cell.view;
@@ -308,14 +308,14 @@ class GridViewDataSource extends NSObject implements UICollectionViewDataSource 
 class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     public static initWithOwner(owner: WeakRef<GridView>): UICollectionViewDelegateImpl {
         const delegate = UICollectionViewDelegateImpl.new() as UICollectionViewDelegateImpl;
-        delegate._owner = owner;
+        delegate.owner = owner;
         return delegate;
     }
 
-    private _owner: WeakRef<GridView>;
+    private owner: WeakRef<GridView>;
 
     public collectionViewWillDisplayCellForItemAtIndexPath(collectionView: UICollectionView, cell: UICollectionViewCell, indexPath: NSIndexPath) {
-        const owner = this._owner.get();
+        const owner = this.owner.get();
 
         if (indexPath.row === owner.items.length - 1) {
             owner.notify<EventData>({
@@ -335,8 +335,8 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
 
     public collectionViewDidSelectItemAtIndexPath(collectionView: UICollectionView, indexPath: NSIndexPath) {
         const cell = collectionView.cellForItemAtIndexPath(indexPath);
-        const owner = this._owner.get();
-        
+        const owner = this.owner.get();
+
         owner.notify<GridItemEventData>({
             eventName: GridViewBase.itemTapEvent,
             object: owner,
@@ -350,7 +350,7 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
     }
 
     public scrollViewDidScroll(collectionView: UICollectionView) {
-        const owner = this._owner.get();
+        const owner = this.owner.get();
         if (!owner) {
             return;
         }

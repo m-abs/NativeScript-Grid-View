@@ -10,6 +10,7 @@
         "target": "es5",
         "module": "commonjs",
         "outDir": "bin/dist",
+        "skipLibCheck": true,
         "lib": [
             "es6",
             "dom"
