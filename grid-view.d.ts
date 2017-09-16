@@ -36,6 +36,9 @@ export class GridView extends View {
     public ios: any; /* UICollectionView */
     public android: any; /* android.support.v7.widget.RecyclerView */
 
+    public scrollToIndex(index: number): void;
+    public scrollTo(x: number, y: number): void;
+    public scrollBy(x: number, y: number): void;
     public refresh();
 }
 

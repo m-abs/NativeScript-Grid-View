@@ -84,6 +84,18 @@ export abstract class GridViewBase extends View implements GridViewDefinition {
     public _getDataItem(index: number): any {
         return this.isItemsSourceIn ? (this.items as ItemsSource).getItem(index) : this.items[index];
     }
+
+    public scrollToIndex(index: number) {
+        // Ignore
+    }
+
+    public scrollTo(x: number, y: number) {
+        // Ignore
+    }
+
+    public scrollBy(x: number, y: number) {
+        // Ignore
+    }
 }
 
 export const itemsProperty = new Property<GridViewBase, any[] | ItemsSource>({

@@ -23,19 +23,24 @@ These components make use of several CSS class names that are part of the Native
 core theme, such as p-20, btn, h2, and list-group. You can view a full list of the
 class names available for styling your app at https://docs.nativescript.org/ui/theme.
 -->
-<GridLayout class="page" rows="*, *">
-  <GridView row="0" [items]="items" colWidth="33%" rowHeight="100" orientation="vertical" (scroll)="onScroll($event)">
-    <ng-template let-item="item" let-odd="odd">
+<GridLayout class="page" rows="*, auto, *, auto">
+  <GridView #scroll1 row="0" [items]="items" colWidth="33%" rowHeight="100" orientation="vertical" (scroll)="onScroll($event)">
+    <ng-template let-item="item" let-odd="odd" let-i="index">
       <StackLayout [nsRouterLink]="['/item', item.id]" borderColor="blue" borderWidth="2" borderRadius="5" verticalAlignment="stretch" class="list-group-item" [class.odd]="odd">
-        <Label verticalAlignment="center" [text]="item.name" class="list-group-item-text" textWrap="true"></Label>
+        <Label verticalAlignment="center" [text]="i + ' - ' + item.name" class="list-group-item-text" textWrap="true"></Label>
       </StackLayout>
     </ng-template>
   </GridView>
-  <GridView row="1" [items]="items" colWidth="33%" rowHeight="100" orientation="horizontal" (scroll)="onScroll($event)">
-    <ng-template let-item="item" let-odd="odd">
+
+  <Button row="1" (tap)="scrollTo1()" text="Scroll 1"></Button>
+
+  <GridView #scroll2 row="2" [items]="items" colWidth="33%" rowHeight="100" orientation="horizontal" (scroll)="onScroll($event)">
+    <ng-template let-item="item" let-odd="odd" let-i="index">
       <StackLayout [nsRouterLink]="['/item', item.id]" borderColor="blue" borderWidth="2" borderRadius="5" verticalAlignment="stretch" class="list-group-item" [class.odd]="odd">
-        <Label verticalAlignment="center" [text]="item.name" class="list-group-item-text" textWrap="true"></Label>
+        <Label verticalAlignment="center" [text]="i + ' ' + item.name" class="list-group-item-text" textWrap="true"></Label>
       </StackLayout>
     </ng-template>
   </GridView>
+
+  <Button row="4" (tap)="scrollTo2()" text="Scroll 2"></Button>
 </GridLayout>
