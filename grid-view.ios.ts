@@ -37,21 +37,19 @@ const CELLIDENTIFIER = "gridcell";
 export class GridView extends GridViewBase {
     public nativeView: UICollectionView;
 
+    public get horizontalOffset(): number {
+        return this.nativeView.contentOffset.x;
+    }
+
+    public get verticalOffset(): number {
+        return this.nativeView.contentOffset.y;
+    }
+
     private _layout: UICollectionViewFlowLayout;
     private _dataSource: GridViewDataSource;
     private _delegate: UICollectionViewDelegateImpl;
     private _preparingCell: boolean = false;
     private _map: Map<GridViewCell, View>;
-
-    public nativeView: UICollectionView;
-
-    get horizontalOffset(): number {
-        return this.nativeView.contentOffset.x;
-    }
-
-    get verticalOffset(): number {
-        return this.nativeView.contentOffset.y;
-    }
 
     constructor() {
         super();
