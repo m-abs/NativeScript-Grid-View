@@ -220,6 +220,20 @@ export class GridViewComponent implements DoCheck, OnDestroy, AfterContentInit, 
         });
     }
 
+    private setItemTemplates() {
+        // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
+        // so cache and use only the original template to avoid errors.
+        this.itemTemplate = this.itemTemplateQuery;
+
+        if (this._templateMap) {
+            const templates: KeyedTemplate[] = [];
+            this._templateMap.forEach((value) => {
+                templates.push(value);
+            });
+            this.gridView.itemTemplates = templates;
+        }
+    }
+
     public registerTemplate(key: string, template: TemplateRef<GridItemContext>) {
         gridViewLog("registerTemplate for key: " + key);
         if (!this._templateMap) {
@@ -240,20 +254,6 @@ export class GridViewComponent implements DoCheck, OnDestroy, AfterContentInit, 
         };
 
         this._templateMap.set(key, keyedTemplate);
-    }
-
-    private setItemTemplates() {
-        // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
-        // so cache and use only the original template to avoid errors.
-        this.itemTemplate = this.itemTemplateQuery;
-
-        if (this._templateMap) {
-            const templates: KeyedTemplate[] = [];
-            this._templateMap.forEach((value) => {
-                templates.push(value);
-            });
-            this.gridView.itemTemplates = templates;
-        }
     }
 
     @profile
@@ -286,13 +286,14 @@ export function getGridItemRoot(viewRef: ComponentView, rootLocator: RootLocator
 export class GridTemplateKeyDirective {
     constructor(
         private templateRef: TemplateRef<any>,
-        @Host() private grid: GridViewComponent) {
+        @Host() private gridView: GridViewComponent,
+    ) {
     }
 
     @Input()
-    set nsTemplateKey(value: any) {
-        if (this.grid && this.templateRef) {
-            this.grid.registerTemplate(value, this.templateRef);
+    set gridTemplateKey(value: string) {
+        if (this.gridView && this.templateRef) {
+            this.gridView.registerTemplate(value, this.templateRef);
         }
     }
 }

@@ -8,12 +8,12 @@ import { GridTemplateKeyDirective, GridViewComponent } from "./grid-view-comp";
 
 @NgModule({
   declarations: [
-    GridViewComponent,
     GridTemplateKeyDirective,
+    GridViewComponent,
   ],
   exports: [
-    GridViewComponent,
     GridTemplateKeyDirective,
+    GridViewComponent,
   ],
   schemas: [
     NO_ERRORS_SCHEMA,
