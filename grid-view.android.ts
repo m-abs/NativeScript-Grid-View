@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ***************************************************************************** */
 
-import { Length, View, layout } from "ui/core/view";
+import { KeyedTemplate, Length, View, layout } from "ui/core/view";
 
 import {
     GridViewBase,
     colWidthProperty,
+    itemTemplatesProperty,
     orientationProperty,
     paddingBottomProperty,
     paddingLeftProperty,
@@ -178,6 +179,21 @@ export class GridView extends GridViewBase {
         this.nativeView.scrollBy(x, y);
     }
 
+    public [itemTemplatesProperty.getDefault](): KeyedTemplate[] {
+        return null;
+    }
+    public [itemTemplatesProperty.setNative](value: KeyedTemplate[]) {
+        this._itemTemplatesInternal = new Array<KeyedTemplate>(this._defaultTemplate);
+        if (value) {
+            this._itemTemplatesInternal = this._itemTemplatesInternal.concat(value);
+        }
+
+        const adapter = new GridViewAdapter(new WeakRef(this));
+        adapter.setHasStableIds(true);
+        this.nativeView.setAdapter(adapter);
+        this.refresh();
+    }
+
     private _setPadding(newPadding: { top?: number, right?: number, bottom?: number, left?: number }) {
         const nativeView: android.view.View = this.nativeView as any;
         const padding = {
@@ -300,7 +316,6 @@ class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
     public onCreateViewHolder(parent: android.view.ViewGroup, viewType: number): android.support.v7.widget.RecyclerView.ViewHolder {
         const owner = this.owner.get();
         const view = owner._getItemTemplateContent();
-        console.log(`${parent}/${owner}/${view} ${viewType}`);
 
         owner._addView(view);
 

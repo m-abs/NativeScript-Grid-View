@@ -57,4 +57,8 @@ export class ItemsComponent implements OnInit {
 
         scrollView.scrollToIndex(10);
     }
+
+    itemTemplateSelector(item: any, index: number, items: Array<any>) {
+        return index % 2 ? 'even' : 'odd';
+    }
 }

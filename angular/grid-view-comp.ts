@@ -24,10 +24,12 @@ import {
     ChangeDetectorRef,
     Component,
     ContentChild,
+    Directive,
     DoCheck,
     ElementRef,
     EmbeddedViewRef,
     EventEmitter,
+    Host,
     Inject,
     Input,
     IterableDiffer,
@@ -129,6 +131,7 @@ export class GridViewComponent implements DoCheck, OnDestroy, AfterContentInit, 
     private gridView: GridView;
     private _items: any;
     private _differ: IterableDiffer<KeyedTemplate>;
+    private _templateMap: Map<string, KeyedTemplate>;
     private itemTemplate: TemplateRef<GridItemContext>;
 
     constructor(@Inject(ElementRef) _elementRef: ElementRef,
@@ -217,18 +220,40 @@ export class GridViewComponent implements DoCheck, OnDestroy, AfterContentInit, 
         });
     }
 
+    public registerTemplate(key: string, template: TemplateRef<GridItemContext>) {
+        gridViewLog("registerTemplate for key: " + key);
+        if (!this._templateMap) {
+            this._templateMap = new Map<string, KeyedTemplate>();
+        }
+
+        const keyedTemplate = {
+            key,
+            createView: () => {
+                gridViewLog("registerTemplate for key: " + key);
+
+                const viewRef = this.loader.createEmbeddedView(template, new GridItemContext(), 0);
+                const resultView = getGridItemRoot(viewRef);
+                resultView[NG_VIEW] = viewRef;
+
+                return resultView;
+            }
+        };
+
+        this._templateMap.set(key, keyedTemplate);
+    }
+
     private setItemTemplates() {
         // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
         // so cache and use only the original template to avoid errors.
         this.itemTemplate = this.itemTemplateQuery;
 
-        this.gridView.itemTemplate = () => {
-            const viewRef = this.loader.createEmbeddedView(this.itemTemplate, new GridItemContext(), 0);
-            const resultView = getGridItemRoot(viewRef);
-            resultView[NG_VIEW] = viewRef;
-
-            return resultView;
-        };
+        if (this._templateMap) {
+            const templates: KeyedTemplate[] = [];
+            this._templateMap.forEach((value) => {
+                templates.push(value);
+            });
+            this.gridView.itemTemplates = templates;
+        }
     }
 
     @profile
@@ -255,6 +280,21 @@ export type RootLocator = (nodes: any[], nestLevel: number) => View;
 export function getGridItemRoot(viewRef: ComponentView, rootLocator: RootLocator = getSingleViewRecursive): View {
     const rootView = rootLocator(viewRef.rootNodes, 0);
     return rootView;
+}
+
+@Directive({ selector: "[gridTemplateKey]" })
+export class GridTemplateKeyDirective {
+    constructor(
+        private templateRef: TemplateRef<any>,
+        @Host() private grid: GridViewComponent) {
+    }
+
+    @Input()
+    set nsTemplateKey(value: any) {
+        if (this.grid && this.templateRef) {
+            this.grid.registerTemplate(value, this.templateRef);
+        }
+    }
 }
 
 if (!isKnownView("GridView")) {

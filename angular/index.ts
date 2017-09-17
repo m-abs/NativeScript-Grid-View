@@ -4,14 +4,16 @@ import {
   NgModule,
 } from "@angular/core";
 
-import { GridViewComponent } from "./grid-view-comp";
+import { GridTemplateKeyDirective, GridViewComponent } from "./grid-view-comp";
 
 @NgModule({
   declarations: [
     GridViewComponent,
+    GridTemplateKeyDirective,
   ],
   exports: [
     GridViewComponent,
+    GridTemplateKeyDirective,
   ],
   schemas: [
     NO_ERRORS_SCHEMA,
@@ -19,3 +21,5 @@ import { GridViewComponent } from "./grid-view-comp";
 })
 export class GridViewModule {
 }
+
+export { GridViewComponent, GridTemplateKeyDirective };

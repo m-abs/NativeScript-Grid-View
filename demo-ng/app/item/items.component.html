@@ -24,9 +24,15 @@ core theme, such as p-20, btn, h2, and list-group. You can view a full list of t
 class names available for styling your app at https://docs.nativescript.org/ui/theme.
 -->
 <GridLayout class="page" rows="*, auto, *, auto">
-  <GridView #scroll1 row="0" [items]="items" colWidth="33%" rowHeight="100" orientation="vertical" (scroll)="onScroll($event)">
-    <ng-template let-item="item" let-odd="odd" let-i="index">
-      <StackLayout [nsRouterLink]="['/item', item.id]" borderColor="blue" borderWidth="2" borderRadius="5" verticalAlignment="stretch" class="list-group-item" [class.odd]="odd">
+  <GridView #scroll1 row="0" [items]="items" colWidth="33%" rowHeight="100" orientation="vertical" (scroll)="onScroll($event)" itemTemplateSelector="itemTemplateSelector">
+    <ng-template gridTemplateKey="odd" let-item="item" let-i="index">
+      <StackLayout [nsRouterLink]="['/item', item.id]" borderColor="blue" borderWidth="2" borderRadius="5" verticalAlignment="stretch" class="list-group-item odd">
+        <Label verticalAlignment="center" [text]="i + ' - ' + item.name" class="list-group-item-text" textWrap="true"></Label>
+      </StackLayout>
+    </ng-template>
+
+    <ng-template gridTemplateKey="even" let-item="item" let-i="index">
+      <StackLayout [nsRouterLink]="['/item', item.id]" borderColor="blue" borderWidth="2" borderRadius="5" verticalAlignment="stretch" class="list-group-item even">
         <Label verticalAlignment="center" [text]="i + ' - ' + item.name" class="list-group-item-text" textWrap="true"></Label>
       </StackLayout>
     </ng-template>
