@@ -2,10 +2,10 @@
   "nativescript": {
     "id": "com.tangrainc.nggridviewsample",
     "tns-ios": {
-      "version": "3.1.0"
+      "version": "3.2.0"
     },
     "tns-android": {
-      "version": "3.1.1"
+      "version": "3.2.0"
     }
   },
   "dependencies": {

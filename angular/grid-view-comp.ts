@@ -220,20 +220,6 @@ export class GridViewComponent implements DoCheck, OnDestroy, AfterContentInit, 
         });
     }
 
-    private setItemTemplates() {
-        // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
-        // so cache and use only the original template to avoid errors.
-        this.itemTemplate = this.itemTemplateQuery;
-
-        if (this._templateMap) {
-            const templates: KeyedTemplate[] = [];
-            this._templateMap.forEach((value) => {
-                templates.push(value);
-            });
-            this.gridView.itemTemplates = templates;
-        }
-    }
-
     public registerTemplate(key: string, template: TemplateRef<GridItemContext>) {
         gridViewLog("registerTemplate for key: " + key);
         if (!this._templateMap) {
@@ -254,6 +240,29 @@ export class GridViewComponent implements DoCheck, OnDestroy, AfterContentInit, 
         };
 
         this._templateMap.set(key, keyedTemplate);
+    }
+
+    private setItemTemplates() {
+        // The itemTemplateQuery may be changed after list items are added that contain <template> inside,
+        // so cache and use only the original template to avoid errors.
+        this.itemTemplate = this.itemTemplateQuery;
+
+        // Create the default itemTemplate
+        this.gridView.itemTemplate = () => {
+            const viewRef = this.loader.createEmbeddedView(this.itemTemplate, new GridItemContext(), 0);
+            const resultView = getGridItemRoot(viewRef);
+            resultView[NG_VIEW] = viewRef;
+
+            return resultView;
+        };
+
+        if (this._templateMap) {
+            const templates: KeyedTemplate[] = [];
+            this._templateMap.forEach((value) => {
+                templates.push(value);
+            });
+            this.gridView.itemTemplates = templates;
+        }
     }
 
     @profile
@@ -285,8 +294,8 @@ export function getGridItemRoot(viewRef: ComponentView, rootLocator: RootLocator
 @Directive({ selector: "[gridTemplateKey]" })
 export class GridTemplateKeyDirective {
     constructor(
-        private templateRef: TemplateRef<any>,
-        @Host() private gridView: GridViewComponent,
+        @Inject(TemplateRef) private templateRef: TemplateRef<GridItemContext>,
+        @Inject(GridViewComponent) @Host() private gridView: GridViewComponent,
     ) {
     }
 

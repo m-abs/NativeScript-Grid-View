@@ -17,6 +17,9 @@
         "singleline": "never"
       }
     ],
+    "no-submodule-imports": false,
+    "no-object-literal-type-assertion": false,
+    "prefer-conditional-expression": false,
     "switch-default": false,
     "max-classes-per-file": [false],
     "no-console": [

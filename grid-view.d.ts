@@ -28,8 +28,8 @@ export class GridView extends View {
     public static scrollEvent: string;
 
     public items: any[] | ItemsSource;
-    public itemTemplate: string | Template;
-    public itemTemplates: string | KeyedTemplate[];
+    public itemTemplate: Template;
+    public itemTemplates: Array<KeyedTemplate>;
     public rowHeight: PercentLength;
     public colWidth: PercentLength;
     public orientation: Orientation;

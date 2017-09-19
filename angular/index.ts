@@ -1,4 +1,5 @@
 // External
+import { CommonModule } from "@angular/common";
 import {
   NO_ERRORS_SCHEMA,
   NgModule,
@@ -11,7 +12,11 @@ import { GridTemplateKeyDirective, GridViewComponent } from "./grid-view-comp";
     GridTemplateKeyDirective,
     GridViewComponent,
   ],
+  imports: [
+    CommonModule,
+  ],
   exports: [
+    CommonModule,
     GridTemplateKeyDirective,
     GridViewComponent,
   ],

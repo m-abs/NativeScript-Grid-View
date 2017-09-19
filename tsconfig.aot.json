@@ -8,12 +8,16 @@
             "es2015.iterable"
         ],
         "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "moduleResolution": "node"
     },
     "files": [
         "angular/index.ts"
     ],
     "angularCompilerOptions": {
-        "skipTemplateCodegen": true
+        "genDir": ".",
+        "skipMetadataEmit": false,
+        "skipTemplateCodegen": true,
+        "strictMetadataEmit": true
     }
 }

@@ -315,7 +315,7 @@ class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
 
     public onCreateViewHolder(parent: android.view.ViewGroup, viewType: number): android.support.v7.widget.RecyclerView.ViewHolder {
         const owner = this.owner.get();
-        const view = owner._getItemTemplateContent();
+        const view = owner._getItemTemplateContent(viewType);
 
         owner._addView(view);
 
@@ -337,10 +337,9 @@ class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
         owner._prepareItem(vh.view, index);
     }
 
-    public getItemViewType(position: number): number {
-        console.log(position);
-
-        return 0;
+    public getItemViewType(index: number): number {
+        const template = this.owner.get()._getItemTemplate(index);
+        return this.owner.get()._itemTemplatesInternal.indexOf(template);
     }
 }
 

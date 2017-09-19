@@ -82,8 +82,8 @@ export abstract class GridViewBase extends View implements GridViewDefinition {
     }
 
     public orientation: Orientation;
-    public itemTemplate: string | Template;
-    public itemTemplates: string | KeyedTemplate[];
+    public itemTemplate: Template;
+    public itemTemplates: Array<KeyedTemplate>;
     public items: any[] | ItemsSource;
     public isItemsSourceIn: boolean;
     public rowHeight: PercentLength;
@@ -110,14 +110,25 @@ export abstract class GridViewBase extends View implements GridViewDefinition {
         this._effectiveRowHeight = PercentLength.toDevicePixels(this.rowHeight, autoEffectiveRowHeight, this._innerHeight);
     }
 
-    public _getItemTemplateContent(): View {
-        let view;
+    public _getItemTemplateContent(itemViewType: number = 0): View {
+        const itemTemplate = this._itemTemplatesInternal[itemViewType];
+        return parse(itemTemplate.createView, this);
+    }
 
-        if (this.itemTemplate) {
-            view = parse(this.itemTemplate, this);
+    public _getItemTemplate(index: number): KeyedTemplate {
+        let templateKey = "default";
+        if (this._itemTemplateSelector) {
+            const item = this.items[index];
+            templateKey = this._itemTemplateSelector(item, index, this.items);
         }
 
-        return view;
+        for (const itemTemplate of this._itemTemplatesInternal) {
+          if (itemTemplate.key === templateKey) {
+              return itemTemplate;
+          }
+        }
+
+        return this.itemTemplates[0];
     }
 
     public _prepareItem(item: View, index: number) {
