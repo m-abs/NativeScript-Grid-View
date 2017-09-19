@@ -83,7 +83,7 @@ export abstract class GridViewBase extends View implements GridViewDefinition {
 
     public orientation: Orientation;
     public itemTemplate: Template;
-    public itemTemplates: Array<KeyedTemplate>;
+    public itemTemplates: KeyedTemplate[];
     public items: any[] | ItemsSource;
     public isItemsSourceIn: boolean;
     public rowHeight: PercentLength;

@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ***************************************************************************** */
 
-import { PercentLength, Template, View, KeyedTemplate } from "ui/core/view";
-import { ItemsSource } from "ui/list-view";
 import { EventData } from "data/observable";
-import { ScrollEventData } from 'ui/scroll-view';
+import { KeyedTemplate, PercentLength, Template, View } from "ui/core/view";
+import { ItemsSource } from "ui/list-view";
+import { ScrollEventData } from "ui/scroll-view";
 
-export type Orientation = "horizontal" | "vertical"
+export type Orientation = "horizontal" | "vertical";
 
 export class GridView extends View {
     public static itemLoadingEvent: string;
@@ -29,7 +29,7 @@ export class GridView extends View {
 
     public items: any[] | ItemsSource;
     public itemTemplate: Template;
-    public itemTemplates: Array<KeyedTemplate>;
+    public itemTemplates: KeyedTemplate[];
     public rowHeight: PercentLength;
     public colWidth: PercentLength;
     public orientation: Orientation;

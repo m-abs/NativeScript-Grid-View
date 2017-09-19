@@ -15,12 +15,13 @@ limitations under the License.
 ***************************************************************************** */
 
 import { EventData, Observable } from "data/observable";
-import { Length, View } from "ui/core/view";
+import { KeyedTemplate, Length, View } from "ui/core/view";
 import * as utils from "utils/utils";
 
 import {
     GridViewBase,
     GridViewScrollEventData,
+    itemTemplatesProperty,
     orientationProperty,
     paddingBottomProperty,
     paddingLeftProperty,
@@ -135,6 +136,24 @@ export class GridView extends GridViewBase {
         }
     }
 
+    public [itemTemplatesProperty.getDefault](): KeyedTemplate[] {
+        return null;
+    }
+    public [itemTemplatesProperty.setNative](itemTemplates: KeyedTemplate[]) {
+        this._itemTemplatesInternal = new Array<KeyedTemplate>(this._defaultTemplate);
+        if (itemTemplates) {
+            for (const itemTemplate of itemTemplates) {
+                this.ios.registerClassForCellWithReuseIdentifier(GridViewCell.class(), itemTemplate.key);
+            }
+
+            this._itemTemplatesInternal = [this._defaultTemplate, ...itemTemplates];
+        } else {
+            this._itemTemplatesInternal = [this._defaultTemplate];
+        }
+
+        this.refresh();
+    }
+
     public eachChildView(callback: (child: View) => boolean): void {
         this._map.forEach((view, key) => {
             callback(view);
@@ -190,7 +209,12 @@ export class GridView extends GridViewBase {
 
             let view = cell.view;
             if (!view) {
-                view = this._getItemTemplateContent();
+                const template = this._getItemTemplate(indexPath.row);
+                if (template) {
+                    view = template.createView();
+                } else {
+                    view = this._getItemTemplateContent(0);
+                }
             }
 
             this.notify<GridItemEventData>({
