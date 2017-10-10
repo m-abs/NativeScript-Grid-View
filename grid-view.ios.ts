@@ -14,13 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ***************************************************************************** */
 
-import { EventData, Observable } from "data/observable";
+import { Observable } from "data/observable";
 import { KeyedTemplate, Length, View } from "ui/core/view";
 import * as utils from "utils/utils";
 
 import {
     GridViewBase,
-    GridViewScrollEventData,
     itemTemplatesProperty,
     orientationProperty,
     paddingBottomProperty,
@@ -29,7 +28,7 @@ import {
     paddingTopProperty,
 } from "./grid-view-common";
 
-import { GridItemEventData, Orientation } from ".";
+import { GridItemEventData, GridViewLoadMoreItemsEventData, GridViewScrollEventData, Orientation } from ".";
 
 export * from "./grid-view-common";
 
@@ -217,12 +216,12 @@ export class GridView extends GridViewBase {
                 }
             }
 
-            this.notify<GridItemEventData>({
+            this.notify({
                 eventName: GridViewBase.itemLoadingEvent,
                 object: this,
                 index: indexPath.row,
                 view
-            });
+            } as GridItemEventData);
 
             // If cell is reused it have old content - remove it first.
             if (!cell.view) {
@@ -342,10 +341,10 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
         const owner = this.owner.get();
 
         if (indexPath.row === owner.items.length - 1) {
-            owner.notify<EventData>({
+            owner.notify({
                 eventName: GridViewBase.loadMoreItemsEvent,
                 object: owner
-            });
+            } as GridViewLoadMoreItemsEventData);
         }
 
         if (cell.preservesSuperviewLayoutMargins) {
@@ -361,12 +360,12 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
         const cell = collectionView.cellForItemAtIndexPath(indexPath);
         const owner = this.owner.get();
 
-        owner.notify<GridItemEventData>({
+        owner.notify({
             eventName: GridViewBase.itemTapEvent,
             object: owner,
             index: indexPath.row,
             view: (cell as GridViewCell).view
-        });
+        } as GridItemEventData);
 
         cell.highlighted = false;
 
@@ -379,11 +378,18 @@ class UICollectionViewDelegateImpl extends NSObject implements UICollectionViewD
             return;
         }
 
+        const firstVisibleItemPos = collectionView.indexPathsForVisibleItems.firstObject.row;
+        const lastVisibleItemPos = collectionView.indexPathsForVisibleItems.lastObject.row;
+        const itemCount = owner.items.length;
+
         owner.notify({
             object: owner,
             eventName: GridViewBase.scrollEvent,
             scrollX: owner.horizontalOffset,
-            scrollY: owner.verticalOffset
+            scrollY: owner.verticalOffset,
+            firstVisibleItemPos,
+            lastVisibleItemPos,
+            itemCount,
         } as GridViewScrollEventData);
     }
 }

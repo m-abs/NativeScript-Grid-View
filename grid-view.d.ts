@@ -52,4 +52,12 @@ export interface GridItemEventData extends EventData {
 
 export interface GridViewScrollEventData extends ScrollEventData {
     object: GridView;
+    firstVisibleItemPos: number;
+    lastVisibleItemPos: number;
+    itemCount: number;
+}
+
+export interface GridViewLoadMoreItemsEventData extends EventData {
+    eventName: string;
+    object: GridView;
 }

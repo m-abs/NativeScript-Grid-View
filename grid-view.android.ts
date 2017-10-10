@@ -28,7 +28,7 @@ import {
     rowHeightProperty,
 } from "./grid-view-common";
 
-import { GridItemEventData, Orientation } from ".";
+import { GridItemEventData, GridViewLoadMoreItemsEventData, GridViewScrollEventData, Orientation } from ".";
 
 export * from "./grid-view-common";
 
@@ -244,19 +244,19 @@ class GridViewScrollListener extends android.support.v7.widget.RecyclerView.OnSc
             owner.notify({
                 eventName: GridViewBase.loadMoreItemsEvent,
                 object: owner
-            });
+            } as GridViewLoadMoreItemsEventData);
         }
 
         if (scrollX !== this._lastScrollX || scrollY !== this._lastScrollY) {
             owner.notify({
                 object: owner,
-                eventName: "scroll",
+                eventName: GridViewBase.scrollEvent,
                 scrollX: scrollX / layout.getDisplayDensity(),
                 scrollY: scrollY / layout.getDisplayDensity(),
                 firstVisibleItemPos,
                 lastVisibleItemPos,
                 itemCount,
-            });
+            } as GridViewScrollEventData);
 
             this._lastScrollX = scrollX;
             this._lastScrollY = scrollY;
@@ -287,12 +287,12 @@ class GridViewCellHolder extends android.support.v7.widget.RecyclerView.ViewHold
     public onClick(v: android.view.View) {
         const gridView = this.gridView.get();
 
-        gridView.notify<GridItemEventData>({
+        gridView.notify({
             eventName: GridViewBase.itemTapEvent,
             object: gridView,
             index: this.getAdapterPosition(),
             view: this.view
-        });
+        } as GridItemEventData);
     }
 
 }
@@ -327,12 +327,12 @@ class GridViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
     public onBindViewHolder(vh: GridViewCellHolder, index: number) {
         const owner = this.owner.get();
 
-        owner.notify<GridItemEventData>({
+        owner.notify({
             eventName: GridViewBase.itemLoadingEvent,
             object: owner,
             index,
             view: vh.view
-        });
+        } as GridItemEventData);
 
         owner._prepareItem(vh.view, index);
     }
